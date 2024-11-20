@@ -14,16 +14,16 @@ Functions_AD.AUTHENTICATE = async (username, password, req, res) => {
 
         const result = { username: username };
         const queryUserName = `sAMAccountName=${username}`
-        const queryMESGroups = `CN=*.MES.*`
+        const queryShippingGroups = `CN=*Embarques_Admin*`
         //This promise returns the user information, if there is an error it goes to the catch, else it just continues
         const userSite_result = await new Promise((resolve, reject) => {
             ad.find(queryUserName, (err, userInfo) => {
                 if (err) {return reject(err)}
                 Promise.all([
                     new Promise((resolve, reject) => {
-                        ad.findGroups(queryMESGroups, (err, mesGroups) => {
+                        ad.findGroups(queryShippingGroups, (err, shippingGroups) => {
                             if (err) { return reject(err) }
-                            resolve(mesGroups);
+                            resolve(shippingGroups);
                         });
                     }),
                     new Promise((resolve, reject) => {
@@ -32,9 +32,9 @@ Functions_AD.AUTHENTICATE = async (username, password, req, res) => {
                             resolve(groupsForUser);
                         });
                     })
-                ]).then(([_mesGroups, _groupsForUser]) => {
+                ]).then(([_shippingGroups, _groupsForUser]) => {
                     const matchingGroups = _groupsForUser.filter(groupForUser =>
-                        _mesGroups.some(group => group.cn === groupForUser.cn)
+                        _shippingGroups.some(group => group.cn === groupForUser.cn)
                     );
                     userInfo.groups = matchingGroups;
                     resolve(userInfo);
@@ -46,12 +46,12 @@ Functions_AD.AUTHENTICATE = async (username, password, req, res) => {
         const matches = dnString.match(/OU=([^,]+)/g);
         let regexFindLocation = /^OU=[A-Z]{3}$/;
         const location = matches && matches.length >= 2 ? matches.filter(elemento => regexFindLocation.test(elemento))[0].split('=')[1].trim() : null;
-        const index = userSite_result.groups.findIndex(group => group.dn.includes('.MES.'));
+        const index = userSite_result.groups.findIndex(group => group.dn.includes('Embarques_Admin'));
         let role = null;
         if (index !== -1) {
             role = userSite_result.groups[index].cn;
         }else{
-            throw new Error("User not assigned to any MES group")
+            throw new Error("User not assigned to any Embarques_Admin group")
         }
 
         result.plant = location == "FRA" ? "DEL" : location;
@@ -88,7 +88,7 @@ Functions_AD.USERSFORGROUP = async (groupName) => {
 Functions_AD.USERINFO = async (userName) => {
     try {
         const queryUserName = `sAMAccountName=${userName}`
-        const queryMESGroups = `CN=*.MES.*`
+        const queryShippingGroups = `CN=*Embarques_Admin*`
 
         const userSite_result = await new Promise((resolve, reject) => {
             ad.find(queryUserName, (err, userInfo) => {
@@ -98,9 +98,9 @@ Functions_AD.USERINFO = async (userName) => {
 
                 Promise.all([
                     new Promise((resolve, reject) => {
-                        ad.findGroups(queryMESGroups, (err, mesGroups) => {
+                        ad.findGroups(queryShippingGroups, (err, shippingGroups) => {
                             if (err) { return reject(err) }
-                            resolve(mesGroups);
+                            resolve(shippingGroups);
                         });
                     }),
                     new Promise((resolve, reject) => {
@@ -109,9 +109,9 @@ Functions_AD.USERINFO = async (userName) => {
                             resolve(groupsForUser);
                         });
                     })
-                ]).then(([_mesGroups, _groupsForUser]) => {
+                ]).then(([_shippingGroups, _groupsForUser]) => {
                     const matchingGroups = _groupsForUser.filter(groupForUser =>
-                        _mesGroups.some(group => group.cn === groupForUser.cn)
+                        _shippingGroups.some(group => group.cn === groupForUser.cn)
                     );
                     userInfo.groups = matchingGroups;
                     resolve(userInfo);
