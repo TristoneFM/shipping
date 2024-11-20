@@ -48,7 +48,7 @@ export default function Login() {
       axios.post('/SHIPPING_AD/AUTHENTICATE', { username, password }).then((response) => {
         setLoading(false);
         if (response.data.authorization === 'Authorized') {
-          setEmployee(username);
+          setEmployee(username.toLowerCase());
           setRole('admin');
           router.push('/dashboard');
         } else {
