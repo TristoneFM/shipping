@@ -25,6 +25,7 @@ Functions.DELIVERY_POST = async (delivery, shipment, employee, dock, date) => {
             return { "result": "N/A", error: `Deliverie(s) previously captured: ${capturedDeliveries.join(", ")}` };
         }
 
+        let isShipmentInserted = false;
         for (let singleDelivery of deliveries) {
             
 
@@ -90,18 +91,24 @@ Functions.DELIVERY_POST = async (delivery, shipment, employee, dock, date) => {
             const consolidatedResult = createConsolidatedObject(result_hus_history);
             allConsolidatedResults.push(consolidatedResult);
 
-
-            let deliveryName = await FunctionsDB.GET_DELIVERYNAME(shipment);
-            if(deliveryName.length !== 0) {
-                return { "result": "N/A", error: `Shipment already exists` };
-            }
-
-            const insertShipment = await FunctionsDB.INSERT_SHIPMENT(delivery, shipment, employee, dock, date);
             
-            if(insertShipment.affectedRows === 0) {
-                return { "result": "N/A", error: `Error Inserting Shipment` };
+            if (!isShipmentInserted) { // Insert shipment only for the first delivery
+                let deliveryName = await FunctionsDB.GET_DELIVERYNAME(shipment);
+                if (deliveryName.length !== 0) {
+                    return { "result": "N/A", error: `Shipment already exists` };
+                }
+        
+                const insertShipment = await FunctionsDB.INSERT_SHIPMENT(delivery, shipment, employee, dock, date);
+        
+                if (insertShipment.affectedRows === 0) {
+                    return { "result": "N/A", error: `Error Inserting Shipment` };
+                }
+        
+                shipmentId = insertShipment.insertId; // Store shipment ID for reuse
+                isShipmentInserted = true; // Set the flag to true after inserting shipment
             }
-            const shipmentId = insertShipment.insertId;
+
+
 
             for (let i = 0; i < consolidatedResult.consolidatedData.length; i++) {
                 const pallet = consolidatedResult.consolidatedData;
