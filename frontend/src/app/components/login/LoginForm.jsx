@@ -45,7 +45,7 @@ export default function Login() {
     setLoading(true);
 
     if (isAdmin) {
-      axiosInstance.post('/SHIPPING_AD/AUTHENTICATE', { username, password }).then((response) => {
+      axios.post('/SHIPPING_AD/AUTHENTICATE', { username, password }).then((response) => {
         setLoading(false);
         if (response.data.authorization === 'Authorized') {
           setEmployee(username.toLowerCase());
@@ -61,7 +61,7 @@ export default function Login() {
         toast.error(error);
       });
     } else if (!isAdmin) {
-      axiosInstance.post('/SHIPPING_RFC/ZEMPMAST', { employeeId }).then((response) => {
+      axios.post('/SHIPPING_RFC/ZEMPMAST', { employeeId }).then((response) => {
         setLoading(false);
         if (response.data.DATA.length > 0) {
           setEmployee(employeeId); 
