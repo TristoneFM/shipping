@@ -278,7 +278,7 @@ const handleSendData = async () => {
       </Typography>
 
       <TextField
-        label="First Scan"
+        label="Master Label"
         variant="outlined"
         value={firstScan}
         onChange={handleFirstScanChange}
