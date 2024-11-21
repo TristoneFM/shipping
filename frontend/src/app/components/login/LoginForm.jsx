@@ -45,7 +45,7 @@ export default function Login() {
     setLoading(true);
 
     if (isAdmin) {
-      axios.post('/SHIPPING_AD/AUTHENTICATE', { username, password }).then((response) => {
+      axiosInstance.post('/SHIPPING_AD/AUTHENTICATE', { username, password }).then((response) => {
         setLoading(false);
         if (response.data.authorization === 'Authorized') {
           setEmployee(username.toLowerCase());

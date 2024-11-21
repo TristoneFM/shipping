@@ -90,7 +90,7 @@ const ProgramContent = () => {
 
 
     try {
-      const response = await axios.post('/SHIPPING_RFC/DELIVERY', formData);
+      const response = await axiosInstance.post('/SHIPPING_RFC/DELIVERY', formData);
 
       if (response.data.error && response.data.error !== 'N/A') {
         toast.error(response.data.error);
