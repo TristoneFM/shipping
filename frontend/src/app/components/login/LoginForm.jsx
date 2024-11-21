@@ -61,7 +61,7 @@ export default function Login() {
         toast.error(error);
       });
     } else if (!isAdmin) {
-      axios.post('/SHIPPING_RFC/ZEMPMAST', { employeeId }).then((response) => {
+      axiosInstance.post('/SHIPPING_RFC/ZEMPMAST', { employeeId }).then((response) => {
         setLoading(false);
         if (response.data.DATA.length > 0) {
           setEmployee(employeeId); 

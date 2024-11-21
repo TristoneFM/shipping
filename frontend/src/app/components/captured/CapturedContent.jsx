@@ -67,6 +67,7 @@ export default function ToolsTable() {
       );
       const imageURL = URL.createObjectURL(response.data);
       setSelectedPicture(imageURL);
+      setSelectedShipment(deliveryId)
       setOpenPictureModal(true);
     } catch (error) {
       toast.error("Failed to fetch picture", { theme: 'colored' });
@@ -149,6 +150,10 @@ export default function ToolsTable() {
       {/* Labels Modal */}
       <Modal open={openLabelModal} onClose={() => setOpenLabelModal(false)}>
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', p: 4, borderRadius: 2 }}>
+              {/* Modal Header */}
+            <Typography variant="h6" align="center" gutterBottom>
+              {rows.find((row) => row.id === selectedShipment)?.shipping_name || 'N/A'}
+            </Typography>
           <TableContainer component={Paper} sx={{ maxHeight: 300, overflow: 'auto' }}>
             <Table>
               <TableBody>
@@ -179,6 +184,9 @@ export default function ToolsTable() {
       {/* Picture Modal */}
       <Modal open={openPictureModal} onClose={() => setOpenPictureModal(false)}>
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', p: 4, borderRadius: 2 }}>
+        <Typography variant="h6" align="center" gutterBottom>
+      {rows.find((row) => row.id === selectedShipment)?.shipping_name || 'N/A'}
+    </Typography>
           {selectedPicture ? (
             <img src={selectedPicture} alt="Selected" style={{ width: '100%', borderRadius: 8 }} />
           ) : (
