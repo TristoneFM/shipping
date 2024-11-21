@@ -55,6 +55,13 @@ const DashboardContext = () => {
       }
     };
     fetchDeliveries();
+
+      // Fetch every minute
+      const intervalId = setInterval(fetchDeliveries, 60000);
+
+      // Cleanup interval on component unmount
+      return () => clearInterval(intervalId);
+      
   }, []);
 
   // Handle delete action with confirmation modal

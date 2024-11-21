@@ -114,7 +114,7 @@ Functions_DB.CLOSE_DELIVERY = async (deliveryId, boxNumber, employee) => {
 Functions_DB.CLOSED_SHIPMENTS = async () => {
     try {
         const result = await dbShip(`
-            SELECT * FROM shipping_captured WHERE shipping_status = 'Closed'
+            SELECT * FROM shipping_captured WHERE shipping_status = 'Closed' ORDER BY shipping_captured_date DESC
         `);
 
         return result;

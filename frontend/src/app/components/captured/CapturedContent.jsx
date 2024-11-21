@@ -42,6 +42,12 @@ export default function ToolsTable() {
       }
     };
     fetchShipments();
+
+        // Fetch every minute
+    const intervalId = setInterval(fetchShipments, 60000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
