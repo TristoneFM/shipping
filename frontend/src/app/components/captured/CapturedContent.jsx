@@ -33,7 +33,7 @@ export default function ToolsTable() {
   const [labelRowsPerPage, setLabelRowsPerPage] = useState(5);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 2,
+    pageSize: 20,
   });
 
   useEffect(() => {
