@@ -3,7 +3,8 @@ const Functions = {};
 const createSapRfcPool = require('../connections/sap/connection_SAP');
 const FunctionsDB = require('../functions/functions_DB');
 
-Functions.DELIVERY_POST = async (delivery, shipment, employee, dock, date) => {
+Functions.DELIVERY_POST = async (delivery, shipment, employee, dock, date, chrysler) => {
+    
     let managed_client;
     try {
         managed_client = await createSapRfcPool.acquire();
@@ -52,11 +53,66 @@ Functions.DELIVERY_POST = async (delivery, shipment, employee, dock, date) => {
                 ],
             });
 
-            
+                  
             if (deliveryResult.ET_HU_HEADER.length === 0) {
                 return { "result": "N/A", error: `Verify delivery: ${singleDelivery}` };
             }
 
+
+            const deliveryNumber = String(singleDelivery).padStart(10, '0');
+            let location = ''
+            if(chrysler) {
+
+                const result = await managed_client.call('RFC_READ_TABLE', {
+                    QUERY_TABLE: 'LIKP',
+                    DELIMITER: '|',
+                    FIELDS: [
+                        { FIELDNAME: 'VBELN' },  // Delivery Number
+                        { FIELDNAME: 'ABLAD' }   // Unloading Point
+                    ],
+                    OPTIONS: [
+                        {
+                            TEXT: `VBELN = '${deliveryNumber}'`,
+                        },
+                    ],
+                });
+
+                // Parse the result
+                const likpData = result.DATA.map((row) => {
+                    const [vbeln, ablad] = row.WA.split('|');
+                    return { deliveryNumber: vbeln, unloadingPoint: ablad };
+                });
+
+
+                // Query VBPA table to fetch VBELN and KNREF
+                const result2 = await managed_client.call('RFC_READ_TABLE', {
+                    QUERY_TABLE: 'VBPA', // Table where KNREF exists
+                    DELIMITER: '|',
+                    FIELDS: [
+                        { FIELDNAME: 'VBELN' },  // Delivery Number
+                        { FIELDNAME: 'KNREF' },  // Customer Reference Number
+                        { FIELDNAME: 'PARVW' },  // Partner Function (optional for context)
+                    ],
+                    OPTIONS: [
+                        {
+                            TEXT: `VBELN = '${deliveryNumber}' AND PARVW = 'WE'`,
+                        },
+                    ],
+                });
+
+                // Parse the result2
+                const vbpaData = result2.DATA.map((row) => {
+                    const [vbeln, knref, parvw] = row.WA.split('|');
+                    return { deliveryNumber: vbeln, customerRef: knref, partnerFunction: parvw };
+                });
+
+
+
+                location = `${vbpaData[0].customerRef.trim()}${likpData[0].unloadingPoint.trim()}`;
+
+            }
+
+            
             let deliveryHUList = deliveryResult.ET_HU_HEADER.map(hu => hu.EXIDV);
             const result_hus_history = await managed_client.call('BAPI_HU_GETLIST', {
                 NOTEXT: '',
@@ -98,7 +154,7 @@ Functions.DELIVERY_POST = async (delivery, shipment, employee, dock, date) => {
                     return { "result": "N/A", error: `Shipment already exists` };
                 }
         
-                const insertShipment = await FunctionsDB.INSERT_SHIPMENT(delivery, shipment, employee, dock, date);
+                const insertShipment = await FunctionsDB.INSERT_SHIPMENT(delivery, shipment, employee, dock, date, location);
         
                 if (insertShipment.affectedRows === 0) {
                     return { "result": "N/A", error: `Error Inserting Shipment` };

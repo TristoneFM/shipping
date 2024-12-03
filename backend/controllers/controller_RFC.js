@@ -10,7 +10,7 @@ controller.DELIVERY_POST = async (req, res) => {
     const date = new Date().toISOString().split('T')[0];
 
     try {
-        const {delivery, shipment, employee, dock} = req.body;
+        const {delivery, shipment, employee, dock, chrysler} = req.body;
 
         const checkDuplicate = await FunctionsDB.GET_DELIVERYNAME(shipment);
         
@@ -18,7 +18,7 @@ controller.DELIVERY_POST = async (req, res) => {
             return res.status(200).json({error: 'Shipment name already exists'});
         }
   
-        const result = await Functions.DELIVERY_POST(delivery, shipment, employee, dock, date);
+        const result = await Functions.DELIVERY_POST(delivery, shipment, employee, dock, date, chrysler);
 
         res.status(200).json(result);
 

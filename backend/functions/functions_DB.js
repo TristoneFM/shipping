@@ -164,11 +164,11 @@ Functions_DB.INSERT_DELIVERY = async (deliveries) => {
     }
 }
 
-Functions_DB.INSERT_SHIPMENT = async (delivery, shipment, employee, dock, date) => {
+Functions_DB.INSERT_SHIPMENT = async (delivery, shipment, employee, dock, date, location) => {
     try {
         const result = await dbShip(`
-            INSERT INTO shipping_captured (shipping_name, shipping_delivery, shipping_admin, shipping_dock, shipping_date, shipping_status)
-            VALUES ('${shipment}', '${delivery}', '${employee}', '${dock}', '${date}', 'Active')
+            INSERT INTO shipping_captured (shipping_name, shipping_delivery, shipping_admin, shipping_dock, shipping_date, shipping_status, shipping_location)
+            VALUES ('${shipment}', '${delivery}', '${employee}', '${dock}', '${date}', 'Active', '${location}')
         `);
 
         return result;

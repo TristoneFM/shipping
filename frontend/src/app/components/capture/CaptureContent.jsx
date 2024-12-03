@@ -51,6 +51,11 @@ const CaptureContent = () => {
   const [dockNumber, setDockNumber] = useState(''); // Dock number state
   const dockNumberInputRef = useRef(null);
   const [scanCounter, setScanCounter] = useState(0); // Counter to track scans
+  const [locationScan, setLocationScan] = useState(''); // NEW: State for scanned location
+  const [location, setLocation] = useState(''); // Existing state to store location from backend
+  const [openLocationModal, setOpenLocationModal] = useState(false); // NEW: State to manage location modal visibility
+  const locationScanInputRef = useRef(null); // NEW: Ref for location scan input
+  
 
   useEffect(() => {
     
@@ -58,8 +63,11 @@ const CaptureContent = () => {
       router.push('/dashboard');
     } else {
       axios.post('/SHIPPING_DB/SELECTED_DELIVERY', { selectedDelivery }).then((response) => {
+        
         setDeliveryData(response.data.delivery);
         setCapturedData(response.data.captured);
+        setLocation(response.data.captured[0].shipping_location);
+        
 
         if (ENABLE_DOCK_CONFIRMATION) {
           setOpenDockModal(true);
@@ -96,17 +104,17 @@ const CaptureContent = () => {
 
     // Focus the input when the second scan modal opens
     useEffect(() => {
-     
-        setTimeout(() => {
-          if (openSecondScanModal) {
-          secondScanInputRef?.current?.focus();
-        }else if(!openModal && !openDockModal && !openSecondScanModal){
-          masterScanInputRef?.current?.focus(); // Focus the first scan input on load
+      setTimeout(() => {
+        if (openLocationModal) {
+          locationScanInputRef?.current?.focus(); // Focus location scan input
+        } else if (openSecondScanModal) {
+          secondScanInputRef?.current?.focus(); // Focus second scan input
+        } else {
+          masterScanInputRef?.current?.focus(); // Default focus on master scan input
         }
-        }, 200); // Adjust the timeout value if needed
-     
-      
-    }, [openSecondScanModal]);
+      }, 200);
+    }, [openLocationModal, openSecondScanModal]);
+    
 
 
     useEffect(() => {
@@ -143,7 +151,11 @@ const CaptureContent = () => {
       return;
     }
   
-    setOpenSecondScanModal(true);
+    if (location) { // NEW: Check if location is required
+      setOpenLocationModal(true); // Open location modal
+    } else {
+      setOpenSecondScanModal(true); // Proceed to second scan modal if no location required
+    }
   };
   
 
@@ -270,6 +282,25 @@ const handleSendData = async () => {
     }
   };
 
+  const handleLocationScanChange = (event) => {
+    setLocationScan(event.target.value); // Update location scan state
+  };
+  
+  const handleLocationScanEnter = (event) => {
+    if (event.key === 'Enter' && locationScan) {
+      if (locationScan === location) { // NEW: Verify scanned location matches backend location
+        toast.success('Location verified');
+        setLocationScan('');
+        setOpenLocationModal(false); // Close location modal
+        setOpenSecondScanModal(true); // Open second scan modal
+      } else {
+        toast.error('Incorrect location'); // Error if location doesn't match
+        setLocationScan('');
+      }
+    }
+  };
+  
+
   return (
    
     <Box sx={{ p: 2 }}>
@@ -348,6 +379,22 @@ const handleSendData = async () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={openLocationModal}>
+        <DialogTitle>Scan Location</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Location"
+            variant="outlined"
+            value={locationScan}
+            onChange={handleLocationScanChange}
+            onKeyDown={handleLocationScanEnter}
+            inputRef={locationScanInputRef} // Assign input ref
+            fullWidth
+          />
+        </DialogContent>
+      </Dialog>
+
 
       {/* Modal for Box Number and Picture Capture */}
       <Dialog open={openModal}>

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Paper, Box, Typography, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { TextField, Button, Paper, Box, Typography, MenuItem, Select, FormControl, InputLabel, FormControlLabel, Switch } from '@mui/material';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import OverlaySpinner from '../shared/OverlaySpinner';
@@ -14,7 +14,8 @@ const ProgramContent = () => {
     shipment: '',
     delivery: '',
     dock: '',
-    employee: employee || '' // Initialize with context employee if available
+    employee: employee || '', // Initialize with context employee if available
+    chrysler: false // Default value for Chrysler
   });
 
   const [loading, setLoading] = useState(false);
@@ -73,9 +74,14 @@ const ProgramContent = () => {
     }));
   };
 
-  
+  const handleChryslerChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      chrysler: e.target.checked, // Update chrysler field
+    }));
+  };
+
   const handleSubmit = async (e) => {
-    
     e.preventDefault();
     setLoading(true);
 
@@ -84,10 +90,10 @@ const ProgramContent = () => {
         shipment: '',
         delivery: '',
         dock: '',
-        employee: employee || '' // Reset with the current employee value from context
+        employee: employee || '', // Reset with the current employee value from context
+        chrysler: false
       });
     };
-
 
     try {
       const response = await axiosInstance.post('/SHIPPING_RFC/DELIVERY', formData);
@@ -157,6 +163,18 @@ const ProgramContent = () => {
               ))}
             </Select>
           </FormControl>
+
+          {/* Chrysler-specific switch */}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={formData.chrysler}
+                onChange={handleChryslerChange}
+                color="primary"
+              />
+            }
+            label="Chrysler"
+          />
           
           <Button type="submit" variant="contained" color="primary" disabled={loading}>
             Guardar
