@@ -31,6 +31,10 @@ export default function ToolsTable() {
   const [pageSize, setPageSize] = useState(5);
   const [labelPage, setLabelPage] = useState(0);
   const [labelRowsPerPage, setLabelRowsPerPage] = useState(5);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 2,
+  });
 
   useEffect(() => {
     const fetchShipments = async () => {
@@ -139,12 +143,10 @@ export default function ToolsTable() {
             columns={columns}
             editMode="row"
             sx={{ border: 0 }}
-            rowModesModel={rowModesModel}
-            onRowSelectionModelChange={(newRowSelectionModel) => setRowSelectionModel(newRowSelectionModel)}
-            rowSelectionModel={rowSelectionModel}
+  
             pagination
-            pageSize={pageSize}
-            onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
             pageSizeOptions={[5, 10, 20]}
             slots={{
               toolbar: EditToolbar,
