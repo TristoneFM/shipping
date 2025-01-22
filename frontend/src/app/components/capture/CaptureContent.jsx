@@ -288,18 +288,24 @@ const handleSendData = async () => {
   
   const handleLocationScanEnter = (event) => {
     if (event.key === 'Enter' && locationScan) {
-      // Check if locationScan matches the location or has a valid '1L' prefix
-      if (locationScan === location || locationScan === `1L${location}`) {
-        toast.success('Location verified');
-        setLocationScan('');
-        setOpenLocationModal(false); // Close location modal
-        setOpenSecondScanModal(true); // Open second scan modal
-      } else {
-        toast.error('Incorrect location'); // Error if location doesn't match
-        setLocationScan('');
-      }
+        // If the locationScan length is 7, append a '0' to the end
+        if (locationScan.length === 7) {
+            locationScan += '0';
+        }
+
+        // Check if locationScan matches the location or has a valid '1L' prefix
+        if (locationScan === location || locationScan === `1L${location}`) {
+            toast.success('Location verified');
+            setLocationScan('');
+            setOpenLocationModal(false); // Close location modal
+            setOpenSecondScanModal(true); // Open second scan modal
+        } else {
+            toast.error('Incorrect location'); // Error if location doesn't match
+            setLocationScan('');
+        }
     }
   };
+
   
   
 
