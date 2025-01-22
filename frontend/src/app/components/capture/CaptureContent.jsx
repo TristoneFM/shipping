@@ -288,7 +288,8 @@ const handleSendData = async () => {
   
   const handleLocationScanEnter = (event) => {
     if (event.key === 'Enter' && locationScan) {
-      if (locationScan === location) { // NEW: Verify scanned location matches backend location
+      // Check if locationScan matches the location or has a valid '1L' prefix
+      if (locationScan === location || locationScan === `1L${location}`) {
         toast.success('Location verified');
         setLocationScan('');
         setOpenLocationModal(false); // Close location modal
@@ -299,6 +300,7 @@ const handleSendData = async () => {
       }
     }
   };
+  
   
 
   return (
