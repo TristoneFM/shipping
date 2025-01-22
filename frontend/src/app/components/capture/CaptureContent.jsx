@@ -290,7 +290,7 @@ const handleSendData = async () => {
     if (event.key === 'Enter' && locationScan) {
         // If the locationScan length is 7, append a '0' to the end
         if (locationScan.length === 7) {
-            locationScan += '0';
+            setLocationScan(locationScan + '0');
         }
 
         // Check if locationScan matches the location or has a valid '1L' prefix
