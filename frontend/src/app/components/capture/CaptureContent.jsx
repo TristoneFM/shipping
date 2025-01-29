@@ -288,13 +288,15 @@ const handleSendData = async () => {
   
   const handleLocationScanEnter = (event) => {
     if (event.key === 'Enter' && locationScan) {
-        // If the locationScan length is 8, remove the last character
-      //   if (locationScan.length === 8) {
-      //     setLocationScan(locationScan.slice(0, -1)); // Remove the last character
-      // }
+      let updatedLocationScan = locationScan;
+       
+        if (locationScan.length === 8) {
+          updatedLocationScan = locationScan.slice(0, -1); // Remove the last character
+          setLocationScan(updatedLocationScan); // Update state
+      }
 
         // Check if locationScan matches the location or has a valid '1L' prefix
-        if (locationScan === location || locationScan === `1L${location}`) {
+        if (updatedLocationScan  === location || updatedLocationScan  === `1L${location}`) {
             toast.success('Location verified');
             setLocationScan('');
             setOpenLocationModal(false); // Close location modal
